@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/omg"
+        android:title="Oh my god">
+    </item>
+
+    <item
+        android:id="@+id/purpose"
+        android:title="What is my purpose?"/>
+
+    <item
+        android:id="@+id/friendship"
+        android:title="Friendship"/>
+    <item
+        android:id="@+id/beep"
+        android:title="Beep"/>
+    <item
+        android:id="@+id/boop"
+        android:title="Boop"/>
+    <item android:id="@+id/action"
+        android:title="Actions">
+        <menu>
+            <item android:id="@+id/action_purpose"
+                android:title="What is my purpose?" />
+            <item android:id="@+id/action_omg"
+                android:title="Oh my god" />
+        </menu>
+    </item>
+
+</menu>

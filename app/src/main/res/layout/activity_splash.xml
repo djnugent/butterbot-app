@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_splash"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:baselineAligned="false"
+    tools:context="com.example.daniel.butterbot.SplashActivity"
+    android:background="@color/Butterbot_background_light">
+
+
+
+    <!-- Head panel -->
+    <RelativeLayout
+        android:id="@+id/head"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/headbox">
+        <ImageView
+            android:id="@+id/eye"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="60dp"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:adjustViewBounds="true"
+            android:src="@drawable/eye"/>
+        <TextView
+            android:id="@+id/warning"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:textAlignment="center"
+            android:textSize="20dp"
+            android:textColor="@android:color/black"
+            android:visibility="invisible"/>
+    </RelativeLayout>
+
+    <!-- Status panel -->
+    <LinearLayout
+        android:id="@+id/status_container"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:orientation="vertical">
+        <RelativeLayout
+            android:id="@+id/status_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.1"
+            android:layout_gravity="fill_vertical"></RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/status_content"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="0.35">
+            <TextView
+                android:id="@+id/status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="5dp"
+                android:paddingLeft="30dp"
+                android:text="Connecting"
+                android:textSize="27dp"
+                android:textColor="@android:color/black"
+                android:textAlignment="center"/>
+            <com.wang.avi.AVLoadingIndicatorView
+                android:id="@+id/dots"
+                android:layout_width="wrap_content"
+                android:layout_height="15dp"
+                android:layout_marginTop="20dp"
+                android:layout_toEndOf="@id/status"
+                app:indicatorName="BallPulseSyncIndicator"
+                app:indicatorColor="@android:color/black"
+                />
+        </RelativeLayout>
+   </LinearLayout>
+
+
+    <!-- Title Text -->
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textSize="57dp"
+        android:layout_marginTop="20dp"
+        android:textColor="@android:color/black"
+        android:textAlignment="center"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"/>
+
+    <!-- Author Text -->
+    <TextView
+        android:id="@+id/author"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18dp"
+        android:text="Created By Daniel Nugent"
+        android:layout_alignParentBottom="true"
+        android:textColor="@color/author_text"
+        android:textAlignment="center"/>
+
+
+    <!--Control Panel-->
+    <RelativeLayout
+        android:id="@+id/control"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/head">
+
+        <!--Control bar-->
+        <RelativeLayout
+            android:id="@+id/control_bar"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:paddingBottom="10dp"
+            android:layout_alignParentBottom="true">
+            <!--Control Buttons-->
+            <ImageButton
+                android:id="@+id/tilt"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:scaleType="fitEnd"
+                android:adjustViewBounds="true"
+                android:background="@color/Butterbot_background_dark"
+                android:src="@drawable/tiltup" />
+            <ImageButton
+                android:id="@+id/mic"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:scaleType="fitStart"
+                android:adjustViewBounds="true"
+                android:background="@color/Butterbot_background_dark"
+                android:src="@drawable/micup" />
+            <!--Battery-->
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_alignBottom="@id/mic"
+                android:layout_alignTop="@id/mic">
+                <ImageView
+                    android:id="@+id/battery"
+                    android:adjustViewBounds="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="25dp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/batt1"/>
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+        <!--Joystick-->
+        <RelativeLayout
+            android:id="@+id/joystick"
+            android:layout_width="230dp"
+            android:layout_height="230dp"
+            android:layout_alignParentRight="true"
+            android:layout_above="@id/control_bar">
+            <ImageView
+                android:id="@+id/pad"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="20dp"
+                android:src="@drawable/joypad"/>
+            <ImageView
+                android:id="@+id/stick"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/joylever"
+                android:layout_margin="100dp"/>
+
+        </RelativeLayout>
+
+
+        <!--Slider-->
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_above="@id/control_bar"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="15dp">
+            <ImageView
+                android:id="@+id/chevron_top"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignLeft="@+id/slider"
+                android:layout_alignRight="@+id/slider"
+                android:paddingLeft="1dp"
+                android:paddingRight="1dp"
+               android:src="@drawable/chevron"/>
+            <ImageView
+                android:id="@+id/chevron_bottom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_alignLeft="@+id/slider"
+                android:layout_alignRight="@+id/slider"
+                android:paddingLeft="1dp"
+                android:paddingRight="1dp"
+                android:rotation="180"
+                android:src="@drawable/chevron"/>
+            <android.widget.VerticalSeekBar
+                android:id="@+id/slider"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="40dp"
+                android:layout_above="@id/chevron_bottom"
+                android:layout_below="@id/chevron_top"
+                android:progressDrawable="@drawable/bb_seekbar"
+                android:thumb="@drawable/thumb_up"
+                android:splitTrack="false"
+                android:maxHeight="2dp"
+                android:progress="500"
+                android:max="1000"
+                />
+        </RelativeLayout>
+    </RelativeLayout>
+</RelativeLayout>
