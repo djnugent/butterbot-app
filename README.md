@@ -1,8 +1,14 @@
 # butterbot-app
 Android Butterbot app
 
-## SplashScreen
-![SplashScreen](https://raw.githubusercontent.com/djnugent/butterbot-app/master/git-res/SplashScreen.gif)
+## Splash Screen Transition
+![SplashScreenTransition](https://raw.githubusercontent.com/djnugent/butterbot-app/master/git-res/transitions.gif)
 
-## Main screen with controls
-![usage](https://raw.githubusercontent.com/djnugent/butterbot-app/master/git-res/usage.gif)
+## Main screen Controls
+![MainScreenControls](https://raw.githubusercontent.com/djnugent/butterbot-app/master/git-res/controls.gif)
+
+## Play audio or do preprogrammed actions
+![Audio](https://raw.githubusercontent.com/djnugent/butterbot-app/master/git-res/audio.gif)
+
+## Enable Accelerometer neck control
+![Neck](https://raw.githubusercontent.com/djnugent/butterbot-app/master/git-res/neck.gif)

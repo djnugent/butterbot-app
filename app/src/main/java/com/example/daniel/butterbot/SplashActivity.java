@@ -95,9 +95,7 @@ public class SplashActivity extends AppCompatActivity {
     private static final int MAX_CMD_RATE = 30; //max rate(hz) to send commands over tcp
     private static final int TCP_TIMEOUT = 1500; // tcp heartbeat timeout(milliseconds)
 
-
-
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
