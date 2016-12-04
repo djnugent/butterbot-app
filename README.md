@@ -1,5 +1,5 @@
 # Butterbot-app
-This is an android app that I made for the my butterbot project. It connects to butterbot over wifi(tcp) and can control his arms, speech, treads, and led. It is self configuring and will auto discover butterbot as long as he is on the same wifi network.
+This is an android app that I made for the my butterbot project. It connects to butterbot over wifi(tcp) and can control his arms, speech, treads, and led. It is self configuring and will auto discover butterbot as long as he is on the same wifi network. Below you'll find a brief overview of the UI functionality.
 
 ## Splash Screen Transition
 When the app connects to butterbot it transitions to the control page
