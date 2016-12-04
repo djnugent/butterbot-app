@@ -1,5 +1,5 @@
 # Butterbot-app
-This is an android app that I made for the my butterbot project. It connects to butterbot over wifi(tcp) and can control his arms, speech, treads, and led. It is self configuring and will auto discover butterbot as long as he is on the same wifi network. Below you'll find a brief overview of the UI functionality.
+This is an android app that I made for the my [butterbot project](https://github.com/djnugent/butterbot). It connects to butterbot over wifi(tcp) and can control his arms, speech, treads, and led. It is self configuring and will auto discover butterbot as long as he is on the same wifi network. Below you'll find a brief overview of the UI functionality.
 
 
 ## Splash Screen Transition
@@ -16,4 +16,5 @@ This menu allow the user to play audio clips or play preprogrammed motion/audio 
 
 ## Enable Accelerometer neck control
 This button enables neck control from phone tilt. The neck is super sensitive so the user is prompted before enabling neck control.
+
 ![Neck](https://raw.githubusercontent.com/djnugent/butterbot-app/master/git-res/neck.gif)
