@@ -56,7 +56,7 @@ public class TCPClient extends AsyncTask<Void, Object, Void> {
         alive = false;
     }
 
-    public void sendPacket(byte cmd_id, int arg1, int arg2){
+    public boolean sendPacket(byte cmd_id, int arg1, int arg2){
         if (out != null && alive && !socket.isClosed()) {
             ByteBuffer buff = ByteBuffer.allocate(6);
             buff.put(0, cmd_id);
@@ -68,6 +68,7 @@ public class TCPClient extends AsyncTask<Void, Object, Void> {
             try {
                 out.write(cmd);
                 out.flush();
+                return true;
             }catch (Exception e){
                 Log.e("TCP", "Write Exception", e);
             }
@@ -75,6 +76,7 @@ public class TCPClient extends AsyncTask<Void, Object, Void> {
         else{
             Log.e("TCP", "Write Error");
         }
+        return false;
     }
 
     @Override
@@ -165,6 +167,7 @@ public class TCPClient extends AsyncTask<Void, Object, Void> {
                     if(System.currentTimeMillis() - last_recv > timeout){
                         publishProgress(DISCONNECTED);
                         alive = false;
+                        Log.e("TCP","Heartbeat Timeout");
                     }
 
                 }

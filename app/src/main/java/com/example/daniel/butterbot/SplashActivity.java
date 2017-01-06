@@ -44,6 +44,8 @@ import java.util.List;
  * TODO
  * Accelerometer past vertical starts to decrease
  * preprogrammed actions
+ * OPENMV support
+ * Hidden access token/ dialog prompt on startup
  * ADDITIONS
  * * Connect to the same wifi network upon receiving connectioninfo
  * * Voice control
@@ -80,6 +82,7 @@ public class SplashActivity extends AppCompatActivity {
     private TCPClient client;
     private ParticleStream cloud;
     private Command bb;
+    private OpenMV camera;
 
     private float[] magnetic = null;
     private float[] gravity = null;
@@ -95,7 +98,7 @@ public class SplashActivity extends AppCompatActivity {
     private static final int MAX_CMD_RATE = 30; //max rate(hz) to send commands over tcp
     private static final int TCP_TIMEOUT = 1500; // tcp heartbeat timeout(milliseconds)
 
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -139,6 +142,7 @@ public class SplashActivity extends AppCompatActivity {
         cloud = new ParticleStream(getApplicationContext(), "https://api.particle.io/v1/devices/events?access_token=f7d322194fbf5eed19b6c47b35a12765ab87fda6");
         bb = new Command(client,MAX_CMD_RATE);
         js = new JoyStick(getApplicationContext(), joystick, pad, stick);
+        camera = new OpenMV(bb,100);
 
 
 
@@ -166,6 +170,12 @@ public class SplashActivity extends AppCompatActivity {
             public void messageReceived(byte cmd, int arg1, int arg2) {
                 if(cmd == Command.BATT_LVL){
                     handleBattery(arg1,arg2);
+                }
+                if(cmd == Command.OPENMV_POS){
+                    Log.d("OPENMV_POS", String.format("x: %d, y: %d",arg1,arg2));
+                    camera.consume(arg1,arg2);
+                }else{
+                    Log.e("Command","Invalid cmd_id: " + String.format("%x",cmd));
                 }
             }
 
@@ -207,6 +217,24 @@ public class SplashActivity extends AppCompatActivity {
         cloud.execute();
 
 
+        //configure camera
+        camera.setTarget(100,100);
+        camera.config_x(0.5,-50,50); //base scalar and limits
+        camera.config_y(2.0,1100,1900); //neck scalar and limits
+        camera.setOpenMVUpdateListener(new OpenMV.OnOpenMVUpdate(){
+            @Override
+            public void target_lock() {
+                //TODO
+            }
+
+            @Override
+            public void target_lost() {
+                //TODO
+            }
+        });
+        camera.execute();
+
+
         ///////////////////////////////Configure UI Element Callbacks///////////////////////////////
         //Override button callback
         eye.setOnLongClickListener(new View.OnLongClickListener() {
@@ -219,6 +247,22 @@ public class SplashActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+        //toggle tracking callback
+        eye.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(transitioned){
+                    Toast.makeText(SplashActivity.this, "Toggle tracking", Toast.LENGTH_SHORT).show();
+                    if(camera.isTracking_enabled()) {
+                        camera.disable_tracking();
+                    }else{
+                        camera.enable_tracking();
+                    }
+                }
+            }
+        });
+
 
         //Tilt callback for neck control
         tilt.setOnTouchListener(new View.OnTouchListener() {
@@ -238,12 +282,11 @@ public class SplashActivity extends AppCompatActivity {
                                         dialog.dismiss();
                                         neck_enabled = true;
 
-                                        bb.forceSend(bb.ATTACH_NECK, 0, 0);
                                         bb.forceSend(bb.ATTACH_NECK, 1, 0);
 
                                         neck_resting_pos = 1500;
                                         bb.forceSend(bb.CTRL_NECK,neck_resting_pos,0);
-
+                                        bb.forceSend(bb.CTRL_ARMS,1500,1500);
                                     }
                                 });
                         alertDialog.show();
@@ -291,7 +334,7 @@ public class SplashActivity extends AppCompatActivity {
 
 
                 if(arg1.getAction() == MotionEvent.ACTION_MOVE) {
-                    int max_spd = 70;
+                    int max_spd = 100;
                     int left,right;
                     int x = (int)(js.getX() * max_spd);
                     int y = (int)(js.getY() * -max_spd);
@@ -349,14 +392,14 @@ public class SplashActivity extends AppCompatActivity {
         slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                bb.forceSend(Command.CTRL_ARMS,slider_value,slider_value);
+                bb.forceSend(Command.CTRL_ARMS,2000-slider_value,slider_value+1000);
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
-                slider_value = progress + 1000; //range 1000 -2000 microseconds
-                bb.send(Command.CTRL_ARMS,slider_value,slider_value);
+                slider_value = progress;
+                bb.send(Command.CTRL_ARMS,2000 -slider_value, slider_value + 1000); //range 1000 -2000 microseconds
             }
         });
 
@@ -401,8 +444,9 @@ public class SplashActivity extends AppCompatActivity {
 
     public void onDestroy() {
         super.onDestroy();
-        bb.forceSend(Command.CTRL_MOTORS,255,255); //255 offset aka 255 is 0
-        bb.forceSend(Command.ATTACH_NECK,0,0);
+        //bb.forceSend(Command.CTRL_MOTORS,255,255); //255 offset aka 255 is 0
+        //bb.forceSend(Command.CTRL_ARMS, 2000,1000);
+        //bb.forceSend(Command.ATTACH_NECK,0,0);
         client.close();
         cloud.close();
         sensorManager.unregisterListener(sensorEventListener);

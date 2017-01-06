@@ -15,6 +15,9 @@ public class Command {
     public static final byte CTRL_LIST_MODE = 0x06;        //activate listen mode  - {}
     public static final byte BATT_LVL       = 0x07;        //Battery Level
     public static final byte ATTACH_NECK    = 0x08;        //Activate the neck
+    public static final byte OPENMV_ENABLE  = 0x09;        //Enable OpenMV tracking- {0/1}
+    public static final byte OPENMV_POS     = 0x0A;        //OpenMV position packet
+
 
     public static final byte LED_MODE_TALK  = 0x00;        //Flash LED while talking
     public static final byte LED_MODE_BLINK = 0x01;        //Flash at a continous rate
@@ -47,18 +50,22 @@ public class Command {
         send_period = (int)1000.0/send_rate;
     }
 
-    public void send(byte cmd, int arg1,int arg2){
+    public boolean send(byte cmd, int arg1,int arg2){
+        boolean ret = false;
         if(cmd < NUM_COMMANDS){
             if(System.currentTimeMillis() - last_send[(int)cmd] > send_period){
-                client.sendPacket(cmd,arg1,arg2);
+                ret = client.sendPacket(cmd,arg1,arg2);
                 last_send[(int)cmd] = System.currentTimeMillis();
             }
         }
+        return ret;
     }
-    public void forceSend(byte cmd, int arg1,int arg2){
+    public boolean forceSend(byte cmd, int arg1,int arg2){
+        boolean ret = false;
         if(cmd < NUM_COMMANDS){
-            client.sendPacket(cmd,arg1,arg2);
+            ret = client.sendPacket(cmd,arg1,arg2);
             last_send[(int)cmd] = System.currentTimeMillis();
         }
+        return ret;
     }
 }
