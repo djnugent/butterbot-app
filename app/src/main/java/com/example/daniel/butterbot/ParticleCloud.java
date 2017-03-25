@@ -18,21 +18,22 @@ import java.sql.Connection;
  * Created by Daniel on 11/21/2016.
  */
 
-public class ParticleStream extends AsyncTask<Void, Void, String[]> {
+public class ParticleCloud extends AsyncTask<Void, Void, String[]> {
 
     boolean running = true;
-    String url;
+    String access_token;
     Context context;
     private OnConnectionInfo listener = null;
 
-    public ParticleStream(Context context, String url){
+    public ParticleCloud(Context context){
         this.context = context;
-        this.url = url;
     }
 
     public void setConnectionInfoListener(OnConnectionInfo listener) {
         this.listener = listener;
     }
+
+    public void set_access_token(String access_token){this.access_token = access_token;}
 
     public void close(){
         running = false;
@@ -41,6 +42,7 @@ public class ParticleStream extends AsyncTask<Void, Void, String[]> {
     @Override
     protected String[] doInBackground(Void... params) {
         try{
+            String url = "https://api.particle.io/v1/devices/events?access_token=" + access_token;
             URL particle = new URL(url);
             BufferedReader in = new BufferedReader(new InputStreamReader(particle.openStream()));
 

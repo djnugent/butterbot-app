@@ -8,7 +8,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 
 import com.example.daniel.butterbot.R;
-import com.example.daniel.butterbot.SplashActivity;
 
 import static android.content.Context.VIBRATOR_SERVICE;
 

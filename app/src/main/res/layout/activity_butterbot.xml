@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:baselineAligned="false"
-    tools:context="com.example.daniel.butterbot.SplashActivity"
+    tools:context="com.example.daniel.butterbot.ButterbotActivity"
     android:background="@color/Butterbot_background_light">
 
 

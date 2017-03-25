@@ -2,8 +2,10 @@ package com.example.daniel.butterbot;
 
 import android.animation.ValueAnimator;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
@@ -23,6 +25,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -54,7 +58,7 @@ import java.util.List;
  * * Proper splash screen
  */
 
-public class SplashActivity extends AppCompatActivity {
+public class ButterbotActivity extends AppCompatActivity {
 
     private RelativeLayout root;
     private RelativeLayout head;
@@ -77,12 +81,12 @@ public class SplashActivity extends AppCompatActivity {
     private SensorManager sensorManager;
     private SensorEventListener sensorEventListener;
     private DisplayMetrics metrics;
+    private SharedPreferences settings;
 
     private JoyStick js;
     private TCPClient client;
-    private ParticleStream cloud;
+    private ParticleCloud cloud;
     private Command bb;
-    private OpenMV camera;
 
     private float[] magnetic = null;
     private float[] gravity = null;
@@ -95,6 +99,8 @@ public class SplashActivity extends AppCompatActivity {
     private int neck_pos = neck_resting_pos;
     private int slider_value = 500; //%50
 
+    private boolean cloud_error = false;
+
     private static final int MAX_CMD_RATE = 30; //max rate(hz) to send commands over tcp
     private static final int TCP_TIMEOUT = 1500; // tcp heartbeat timeout(milliseconds)
 
@@ -102,7 +108,7 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash);
+        setContentView(R.layout.activity_butterbot);
 
 
         //Get screen elements
@@ -122,6 +128,7 @@ public class SplashActivity extends AppCompatActivity {
         tilt = (ImageButton) findViewById(R.id.tilt);
         slider = (VerticalSeekBar) findViewById(R.id.slider);
         battery = (ImageView) findViewById(R.id.battery);
+        settings = getSharedPreferences("UserInfo", 0);
         metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
@@ -139,12 +146,9 @@ public class SplashActivity extends AppCompatActivity {
 
         //Initialize objects
         client = new TCPClient();
-        cloud = new ParticleStream(getApplicationContext(), "https://api.particle.io/v1/devices/events?access_token=f7d322194fbf5eed19b6c47b35a12765ab87fda6");
+        cloud = new ParticleCloud(getApplicationContext());
         bb = new Command(client,MAX_CMD_RATE);
         js = new JoyStick(getApplicationContext(), joystick, pad, stick);
-        camera = new OpenMV(bb,100);
-
-
 
         //configure TCP
         client.setTCPUpdateListener(new TCPClient.OnTCPUpdate() {
@@ -155,7 +159,7 @@ public class SplashActivity extends AppCompatActivity {
                     transitionLayout();
                 }
                 warning.setVisibility(View.INVISIBLE);
-                Toast.makeText(SplashActivity.this, "Connected!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ButterbotActivity.this, "Connected!", Toast.LENGTH_SHORT).show();
 
             }
 
@@ -170,10 +174,6 @@ public class SplashActivity extends AppCompatActivity {
             public void messageReceived(byte cmd, int arg1, int arg2) {
                 if(cmd == Command.BATT_LVL){
                     handleBattery(arg1,arg2);
-                }
-                if(cmd == Command.OPENMV_POS){
-                    Log.d("OPENMV_POS", String.format("x: %d, y: %d",arg1,arg2));
-                    camera.consume(arg1,arg2);
                 }else{
                     Log.e("Command","Invalid cmd_id: " + String.format("%x",cmd));
                 }
@@ -197,7 +197,7 @@ public class SplashActivity extends AppCompatActivity {
         });
 
         //Config cloud connection
-        cloud.setConnectionInfoListener(new ParticleStream.OnConnectionInfo() {
+        cloud.setConnectionInfoListener(new ParticleCloud.OnConnectionInfo() {
 
             @Override
             public void connectionInfo(String ssid, String ip, int port) {
@@ -208,31 +208,53 @@ public class SplashActivity extends AppCompatActivity {
 
             @Override
             public void connectionError(String error) {
-                status.setText("Cloud Error!");
+                status.setText("Cloud Error: Hold to reset access token");
+                cloud_error = true;
                 status.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.Butterbot_red));
                 dots.setVisibility(View.INVISIBLE);
             }
         });
         //connect to cloud
-        cloud.execute();
+        String access_token = settings.getString("access_token", "").toString();
+        cloud.set_access_token(access_token);
+        //empty access token
+        if(access_token.equals("")){
+            // Create Object of Dialog class
+            final Dialog login = new Dialog(ButterbotActivity.this);
+            // Set GUI of login screen
+            login.setContentView(R.layout.login_dialog);
 
+            // Init button of login GUI
+            Button btnLogin = (Button) login.findViewById(R.id.btnDone);
+            final EditText txtAccess_token = (EditText)login.findViewById(R.id.txtAccess_token);
+            // Attached listener for login GUI button
+            btnLogin.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String access_token = txtAccess_token.getText().toString().trim();
+                    if(access_token.length() == 40) {
+                        SharedPreferences.Editor editor = settings.edit();
+                        editor.putString("access_token",access_token);
+                        editor.commit();
 
-        //configure camera
-        camera.setTarget(100,100);
-        camera.config_x(0.5,-50,50); //base scalar and limits
-        camera.config_y(2.0,1100,1900); //neck scalar and limits
-        camera.setOpenMVUpdateListener(new OpenMV.OnOpenMVUpdate(){
-            @Override
-            public void target_lock() {
-                //TODO
-            }
+                        //connect to cloud
+                        cloud.set_access_token(access_token);
+                        cloud.execute();
 
-            @Override
-            public void target_lost() {
-                //TODO
-            }
-        });
-        camera.execute();
+                        // Redirect to dashboard / home screen.
+                        login.dismiss();
+                    }
+                    else {
+                        Toast.makeText(ButterbotActivity.this, "Please enter valid access token", Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+            // Make dialog box visible.
+            login.show();
+        }
+        else {
+            cloud.execute();
+        }
 
 
         ///////////////////////////////Configure UI Element Callbacks///////////////////////////////
@@ -241,25 +263,23 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public boolean onLongClick(View v) {
                 if(!transitioned){
-                    Toast.makeText(SplashActivity.this, "Demo mode. Not connected", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ButterbotActivity.this, "Demo mode. Not connected", Toast.LENGTH_SHORT).show();
                     transitionLayout();
                 }
                 return true;
             }
         });
 
-        //toggle tracking callback
-        eye.setOnClickListener(new View.OnClickListener() {
+        status.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
-                if(transitioned){
-                    Toast.makeText(SplashActivity.this, "Toggle tracking", Toast.LENGTH_SHORT).show();
-                    if(camera.isTracking_enabled()) {
-                        camera.disable_tracking();
-                    }else{
-                        camera.enable_tracking();
-                    }
+            public boolean onLongClick(View v) {
+                if(cloud_error) {
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putString("access_token", "");
+                    editor.commit();
+                    Toast.makeText(ButterbotActivity.this, "Reset access token complete", Toast.LENGTH_SHORT).show();
                 }
+                return true;
             }
         });
 
@@ -273,7 +293,7 @@ public class SplashActivity extends AppCompatActivity {
                     vib.vibrate(20);
 
                     if(!neck_enabled) {
-                        AlertDialog alertDialog = new AlertDialog.Builder(SplashActivity.this).create();
+                        AlertDialog alertDialog = new AlertDialog.Builder(ButterbotActivity.this).create();
                         alertDialog.setTitle("Caution");
                         alertDialog.setMessage("About to enable neck. Is the head tilted down?");
                         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Yes",
@@ -561,7 +581,7 @@ public class SplashActivity extends AppCompatActivity {
 
     void handleMenu(){
         //Creating the instance of PopupMenu
-        PopupMenu popup = new PopupMenu(SplashActivity.this, mic);
+        PopupMenu popup = new PopupMenu(ButterbotActivity.this, mic);
         //Inflating the Popup using xml file
         popup.getMenuInflater().inflate(R.menu.popup_menu, popup.getMenu());
         //registering popup with OnMenuItemClickListener
