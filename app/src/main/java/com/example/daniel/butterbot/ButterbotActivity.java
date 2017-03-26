@@ -101,8 +101,8 @@ public class ButterbotActivity extends AppCompatActivity {
 
     private boolean cloud_error = false;
 
-    private static final int MAX_CMD_RATE = 30; //max rate(hz) to send commands over tcp
-    private static final int TCP_TIMEOUT = 1500; // tcp heartbeat timeout(milliseconds)
+    private static final int MAX_CMD_RATE = 7; //max rate(hz) to send commands over tcp
+    private static final int TCP_TIMEOUT = 2000; // tcp heartbeat timeout(milliseconds)
 
 
     @Override

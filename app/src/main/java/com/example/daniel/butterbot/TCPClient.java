@@ -142,7 +142,7 @@ public class TCPClient extends AsyncTask<Void, Object, Void> {
             if(alive && !socket.isClosed()){
                 try{
                     //Let the server know we are alive
-                    if (System.currentTimeMillis() - last_heartbeat > 500) {
+                    if (System.currentTimeMillis() - last_heartbeat > 250) {
                         sendPacket((byte) 0x07, 0, 0);
                         last_heartbeat = System.currentTimeMillis();
                     }
